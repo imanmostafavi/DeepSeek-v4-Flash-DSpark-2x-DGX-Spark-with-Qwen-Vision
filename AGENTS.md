@@ -13,7 +13,9 @@ the current two-Spark setup path.
 2. Copy `.env.dspark.example` and `.env.qwen-vision.example` to local, ignored
    environment files. Never commit credentials, tunnel tokens, private keys,
    or machine-specific IP addresses.
-3. Start the worker before the head for distributed vLLM services.
+3. For a joint cold start, stop DeepSeek, start Qwen worker-first, then start
+   DeepSeek worker-first. This avoids the transient unified-memory pressure
+   seen when Qwen initializes after DeepSeek has already reserved its cache.
 4. Validate `/v1/models`, text generation, tool calls, and an image prompt
    before configuring any client.
 5. Treat Hermes and Pi as optional integrations. Do not overwrite existing

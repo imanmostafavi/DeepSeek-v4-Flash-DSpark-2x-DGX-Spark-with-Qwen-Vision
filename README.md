@@ -18,6 +18,11 @@ required.
   [`integrations/pi.md`](integrations/pi.md).
 - Agent handoff instructions live in [`AGENTS.md`](AGENTS.md).
 
+> [!WARNING]
+> The model endpoints are unauthenticated by default. Keep ports `8888` and
+> `8890` on a trusted LAN or private overlay, or protect them with a firewall
+> and authenticated reverse proxy. Do not expose them directly to the Internet.
+
 The Qwen recipe mirrors the two-node layout used by the live Spark deployment.
 The default runtime is the pinned public image
 `ghcr.io/imanmostafavi/dspark-qwen-vision:0.1.0` built from
@@ -55,6 +60,12 @@ prepared Hugging Face cache to the worker over SSH/rsync. Set
 `QWEN_SYNC_CACHE=0` if both nodes have faster independent access to Hugging
 Face than the inter-node link. DeepSeek retains Mia's original independent
 worker-download behavior.
+
+For a joint cold start, initialize Qwen before DeepSeek. If DeepSeek is already
+running, stop it on both nodes with its included stop script, launch Qwen with
+`./start-qwen-vision.sh`, then relaunch DeepSeek. This avoids the transient
+unified-memory pressure that can occur when Qwen initializes after DeepSeek has
+already reserved its cache; both services coexist after startup.
 
 After the service is healthy, run:
 

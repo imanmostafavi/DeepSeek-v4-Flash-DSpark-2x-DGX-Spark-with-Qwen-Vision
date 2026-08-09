@@ -24,13 +24,13 @@ fi
 
 echo "Syncing Qwen Vision compose configuration to $WORKER_HOST:$WORKER_DIR"
 ssh "$WORKER_HOST" "mkdir -p '$WORKER_DIR'"
-rsync -a --delete \
+rsync -a \
   --exclude '.git' \
   "$COMPOSE_FILE" "$ENV_FILE" \
   "$WORKER_HOST:$WORKER_DIR/"
 
 echo "Starting Qwen Vision worker first"
-ssh "$WORKER_HOST" "cd '$WORKER_DIR' && NODE_RANK=1 docker compose --env-file '$ENV_FILE' -f '$COMPOSE_FILE' up -d"
+ssh "$WORKER_HOST" "cd '$WORKER_DIR' && QWEN_VISION_HEADLESS=1 NODE_RANK=1 docker compose --env-file '$ENV_FILE' -f '$COMPOSE_FILE' up -d"
 
 echo "Starting Qwen Vision head"
 NODE_RANK=0 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d

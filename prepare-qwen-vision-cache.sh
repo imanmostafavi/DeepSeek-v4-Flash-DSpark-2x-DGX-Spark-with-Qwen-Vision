@@ -24,13 +24,14 @@ mkdir -p "$HF_CACHE"
 echo "Preparing Qwen Vision model cache: $MODEL@$REVISION"
 
 docker run --rm --gpus all \
+  --entrypoint python3 \
   -v "$HF_CACHE:/cache/huggingface" \
   -e HF_HOME=/cache/huggingface \
   -e HF_TOKEN="${HF_TOKEN:-}" \
   -e MODEL="$MODEL" \
   -e REVISION="$REVISION" \
   "$IMAGE" \
-  python3 -c 'from huggingface_hub import snapshot_download; import os; print(snapshot_download(os.environ["MODEL"], revision=os.environ["REVISION"], max_workers=4))'
+  -c 'from huggingface_hub import snapshot_download; import os; print(snapshot_download(os.environ["MODEL"], revision=os.environ["REVISION"], max_workers=4))'
 
 echo "Qwen Vision cache is ready at $HF_CACHE"
 
@@ -45,7 +46,7 @@ if [[ -n "${QWEN_WORKER_HOST:-}" && -n "${QWEN_WORKER_DIR:-}" && "${PREPARE_WORK
     rsync -aH --info=progress2 "$HF_CACHE/" "$QWEN_WORKER_HOST:$WORKER_HF_CACHE/"
   else
     echo "QWEN_SYNC_CACHE=0; downloading independently on the worker"
-    rsync -a --delete --exclude '.git' "$ENV_FILE" "$(basename "$0")" "$QWEN_WORKER_HOST:$QWEN_WORKER_DIR/"
+    rsync -a --exclude '.git' "$ENV_FILE" "$(basename "$0")" "$QWEN_WORKER_HOST:$QWEN_WORKER_DIR/"
     ssh "$QWEN_WORKER_HOST" "cd '$QWEN_WORKER_DIR' && PREPARE_WORKER=0 ENV_FILE='$ENV_FILE' HF_CACHE='$WORKER_HF_CACHE' ./$(basename "$0")"
   fi
 fi
