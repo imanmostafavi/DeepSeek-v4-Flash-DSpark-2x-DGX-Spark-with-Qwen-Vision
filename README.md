@@ -10,7 +10,8 @@ required.
 - DeepSeek is the primary long-context text, reasoning, and tool-use model.
 - Qwen Vision is the multimodal sidecar for requests that contain images. The
   tested checkpoint is `RedHatAI/Qwen3.5-9B-quantized.w4a16`, served as
-  `qwen3.5-9b-vision`.
+  `qwen3.5-9b-vision` at revision
+  `a398088c4228b0ae0c8c78df88fd1e4bf445f068`.
 - The generic client contract is documented in
   [`integrations/generic-openai-compatible.md`](integrations/generic-openai-compatible.md).
 - Optional client setup: [`integrations/hermes.md`](integrations/hermes.md) and

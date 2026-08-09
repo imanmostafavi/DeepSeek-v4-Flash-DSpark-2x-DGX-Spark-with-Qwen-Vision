@@ -3,6 +3,8 @@
 This repository is an agent-ready deployment recipe for two NVIDIA DGX Sparks.
 Read `docs/SETUP.md` before changing a host. Do not assume hostnames, interface
 names, IP addresses, model-cache paths, or Docker image names are portable.
+Treat `docs/LEGACY-UPSTREAM.md` as historical reference only; it is not part of
+the current two-Spark setup path.
 
 ## Operating rules
 

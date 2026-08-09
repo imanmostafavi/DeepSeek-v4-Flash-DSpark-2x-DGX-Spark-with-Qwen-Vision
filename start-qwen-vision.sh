@@ -3,8 +3,6 @@ set -euo pipefail
 
 ENV_FILE="${ENV_FILE:-.env.qwen-vision}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.qwen-vision.yml}"
-WORKER_HOST="${QWEN_WORKER_HOST:?Set QWEN_WORKER_HOST to the worker SSH host}"
-WORKER_DIR="${QWEN_WORKER_DIR:?Set QWEN_WORKER_DIR to the worker checkout path}"
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "Missing $ENV_FILE; copy .env.qwen-vision.example and edit it first." >&2
@@ -15,6 +13,9 @@ set -a
 # shellcheck disable=SC1090
 source "$ENV_FILE"
 set +a
+
+WORKER_HOST="${QWEN_WORKER_HOST:?Set QWEN_WORKER_HOST in $ENV_FILE or the environment}"
+WORKER_DIR="${QWEN_WORKER_DIR:?Set QWEN_WORKER_DIR in $ENV_FILE or the environment}"
 
 if [[ "${NODE_RANK:-0}" != "0" ]]; then
   echo "Run this launcher on the head node with NODE_RANK=0." >&2

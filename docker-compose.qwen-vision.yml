@@ -51,6 +51,7 @@ services:
         export CUDA_HOME="$${CUDA_HOME:-/usr/local/cuda}";
         export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$${LD_LIBRARY_PATH:-}";
         exec vllm serve ${QWEN_VISION_MODEL:-RedHatAI/Qwen3.5-9B-quantized.w4a16}
+        --revision ${QWEN_VISION_MODEL_REVISION:-a398088c4228b0ae0c8c78df88fd1e4bf445f068}
         --host ${QWEN_VISION_HOST:-0.0.0.0}
         --port ${QWEN_VISION_PORT:-8890}
         --served-model-name ${QWEN_VISION_SERVED_MODEL:-qwen3.5-9b-vision}

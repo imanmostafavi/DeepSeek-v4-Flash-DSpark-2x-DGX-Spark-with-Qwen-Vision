@@ -4,6 +4,7 @@ set -euo pipefail
 ENV_FILE="${ENV_FILE:-.env.qwen-vision}"
 IMAGE="${QWEN_VISION_IMAGE:-ghcr.io/imanmostafavi/dspark-qwen-vision@sha256:0898f08028ffc48d5f232d750c58ea8cac9e434ec21d3b875c6c62a945acb2a3}"
 MODEL="${QWEN_VISION_MODEL:-RedHatAI/Qwen3.5-9B-quantized.w4a16}"
+REVISION="${QWEN_VISION_MODEL_REVISION:-a398088c4228b0ae0c8c78df88fd1e4bf445f068}"
 HF_CACHE="${HF_CACHE:-$HOME/.cache/huggingface}"
 QWEN_SYNC_CACHE="${QWEN_SYNC_CACHE:-1}"
 
@@ -14,20 +15,22 @@ if [[ -f "$ENV_FILE" ]]; then
   set +a
   IMAGE="${QWEN_VISION_IMAGE:-$IMAGE}"
   MODEL="${QWEN_VISION_MODEL:-$MODEL}"
+  REVISION="${QWEN_VISION_MODEL_REVISION:-$REVISION}"
   HF_CACHE="${HF_CACHE:-$HOME/.cache/huggingface}"
   QWEN_SYNC_CACHE="${QWEN_SYNC_CACHE:-1}"
 fi
 
 mkdir -p "$HF_CACHE"
-echo "Preparing Qwen Vision model cache: $MODEL"
+echo "Preparing Qwen Vision model cache: $MODEL@$REVISION"
 
 docker run --rm --gpus all \
   -v "$HF_CACHE:/cache/huggingface" \
   -e HF_HOME=/cache/huggingface \
   -e HF_TOKEN="${HF_TOKEN:-}" \
   -e MODEL="$MODEL" \
+  -e REVISION="$REVISION" \
   "$IMAGE" \
-  python3 -c 'from huggingface_hub import snapshot_download; import os; print(snapshot_download(os.environ["MODEL"], max_workers=4))'
+  python3 -c 'from huggingface_hub import snapshot_download; import os; print(snapshot_download(os.environ["MODEL"], revision=os.environ["REVISION"], max_workers=4))'
 
 echo "Qwen Vision cache is ready at $HF_CACHE"
 

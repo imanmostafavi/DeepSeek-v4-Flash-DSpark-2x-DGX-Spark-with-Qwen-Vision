@@ -1,91 +1,115 @@
-# Setup — two-node DGX Spark deployment
+# Setup — two DGX Sparks with Qwen Vision
 
-This fork keeps MiaAI-Lab's validated DeepSeek recipe and adds an optional
-Qwen Vision sidecar. Start with the current root README and `AGENTS.md`; this
-document covers the shared host/fabric requirements and the worker-first
-deployment model.
+This is the canonical setup path for a working two-node Mia-style DeepSeek
+deployment. It adds the optional `RedHatAI/Qwen3.5-9B-quantized.w4a16` vision
+sidecar. Hermes and Pi are optional clients and are not required.
 
-The historical A/B replica notes below are retained as upstream context. They
-are not required for the current two-Spark deployment.
+The old upstream four-Spark notes are preserved in
+[`LEGACY-UPSTREAM.md`](LEGACY-UPSTREAM.md) and should not be used for this
+deployment.
 
-## Hardware / fabric
+## Requirements
 
-- 4× NVIDIA DGX Spark (GB10, SM121, 128 GB unified each), 200 Gb RoCE fabric.
-- Two independent **TP=2** replicas (one GPU per node, 2 nodes per replica).
-- Fabric interface `enp1s0f1np1`, HCA `rocep1s0f1`, `NCCL_IB_GID_INDEX=3`.
+- Two networked NVIDIA DGX Sparks (GB10 / SM121), one head and one worker.
+- Docker with the NVIDIA runtime on both nodes.
+- Passwordless SSH from head to worker, plus `rsync`.
+- A working DeepSeek DSpark deployment, or the compatible Mia recipe checked
+  out on both nodes.
+- A RoCE interface/HCA that works for tensor-parallel vLLM traffic.
+- Enough disk space for the Qwen runtime image and model cache.
 
-## Model (same weights for both replicas)
+The scripts do not assume that the nodes are named `spark1` and `spark2`.
+They use the host and interface values supplied in `.env.qwen-vision`.
 
-| | |
-|---|---|
-| Model | `deepseek-ai/DeepSeek-V4-Flash-DSpark` (MLA + sparse indexer, FP8 weights, DSpark γ=5 / rank-256 Markov head) |
-| KV cache | `fp8` |
-| Speculative | `{"method":"dspark","num_speculative_tokens":5}` |
-| Context | `max-model-len 262144` (recipe also supports up to ~900K single-stream) |
+## 1. Discover the node and fabric values
 
-> Both replicas serve the **same** DeepSeek-V4-Flash-DSpark weights. They differ
-> only in **packaging/launch recipe** (and, for B, the concurrency patch). There is
-> no separate "rafael model" vs "tonyd2wild model" — same checkpoint, two recipes.
+Run these on both nodes and use the matching head/worker values in the env
+file:
 
-## Runtime image (both)
+```bash
+hostname
+ip -br address
+ibdev2netdev || true
+docker info
+nvidia-smi
+```
 
-`vllm-dspark-runtime:clean` — a **thin overlay** (`COPY` the DSpark vLLM source files
-+ `py_compile`) on the prebuilt base `ghcr.io/bjk110/vllm-spark:unholy-fusion-prod-ready`
-(mirror of `aidendle94/sparkrun-vllm-ds4-gb10:production-ready`, the "unholy-fusion"
-build carrying the B12X MoE kernels for GB10). The DSpark overlay source is Rafael
-Caricio's integration; the TonyD2Wild repo vendors those same files.
+Confirm head-to-worker access before starting:
 
-## Replica A — Rafael Caricio stack (control, unpatched)
+```bash
+ssh <WORKER_HOST> hostname
+ssh <WORKER_HOST> docker info
+```
 
-| | |
-|---|---|
-| Repo | `rafaelcaricio/spark_vllm_docker` + `rafaelcaricio/vllm` (fork `codex/dspark-harness-integration`) |
-| Nodes | head `<HEAD_FABRIC_IP>:8000`, worker `<WORKER_FABRIC_IP>` |
-| Launch | compose + `unholy` entrypoint + a wrapper that rewrites `method:mtp → dspark` at start |
-| `max-num-seqs` | 1 (control) |
-| Single-stream | ~52–54 tok/s |
+## 2. Configure the Qwen sidecar
 
-## Replica B — TonyD2Wild packaged recipe (frontier sandbox, **patched**)
+On the head node:
 
-| | |
-|---|---|
-| Repo | `tonyd2wild/DeepSeek-v4-Flash-DSpark-60-tok-s-900K-ctx-2x-DGX-Spark` (vendors Rafael's overlay; MiaAI-Lab worker-first launch) |
-| Nodes | head `<HEAD_FABRIC_IP>:8888`, worker `<WORKER_FABRIC_IP>` |
-| Launch | self-contained compose, direct `vllm serve ... method:dspark`, worker-first start script |
-| `max-num-seqs` | swept 1 → 16 (with this patch) |
-| Single-stream | ~52 tok/s |
+```bash
+cp .env.qwen-vision.example .env.qwen-vision
+```
 
----
+Edit these values for the cluster:
 
-## Step-by-step (applies to anyone's DSpark + DeepSeek-V4 setup)
+```env
+QWEN_WORKER_HOST=<worker SSH host>
+QWEN_WORKER_DIR=<worker checkout path>
+MASTER_ADDR=<head RoCE IP>
+NCCL_IB_HCA=<head HCA>
+NCCL_SOCKET_IFNAME=<head RoCE interface>
+HF_CACHE=<head Hugging Face cache>
+QWEN_WORKER_HF_CACHE=<worker Hugging Face cache>
+```
 
-1. **Stand up a working DSpark replica** using either recipe above (build
-   `vllm-dspark-runtime:clean`, copy the model, configure `.env`, launch
-   worker-first). Confirm single-stream works at `max-num-seqs=1`.
+Keep the pinned image and model revision unless you are intentionally testing
+another runtime or checkpoint.
 
-2. **Apply the patch** to your overlay checkout (the dir containing `vllm/`):
-   ```bash
-   git apply -p1 patches/keys-concurrency.patch
-   ```
+## 3. Download and sync the model cache
 
-3. **Rebuild the runtime image on every node** (the overlay is baked at build time):
-   ```bash
-   ./build-dspark-vllm-runtime.sh      # builds head + worker
-   ```
+The script downloads the pinned Qwen revision once on the head and synchronizes
+the cache to the worker:
 
-4. **Configure for concurrency** in your `.env`:
-   ```
-   MAX_NUM_SEQS=16
-   VLLM_DSPARK_GPU_REJECTED_CONTEXT_MASK=1   # required for the ragged path
-   ```
+```bash
+./prepare-qwen-vision-cache.sh
+```
 
-5. **Restart worker-first**, wait for `/v1/models` → 200 (~5 min: load + cudagraph).
+No model weights are stored in this repository. Set `HF_TOKEN` only when the
+selected Hugging Face model requires authentication.
 
-6. **Verify** with the included smoke test (or any OpenAI-compatible client):
-   ```bash
-   ./smoke-deepseek-v4-flash-dspark.sh
-   curl -fsS http://<head>:<port>/v1/models
-   ```
+## 4. Start worker-first and verify
 
-7. **Scale out (optional):** run a second patched TP=2 replica and put a
-   least-connections router in front for ~2× aggregate / concurrency.
+```bash
+./start-qwen-vision.sh
+./scripts/status-qwen-vision.sh
+```
+
+The launcher starts the worker first, starts the head, waits for `/v1/models`,
+and synchronizes the compose/env files. Run the vision smoke test after the
+endpoint is ready:
+
+```bash
+./scripts/smoke-qwen-vision.sh
+```
+
+## Resource guidance
+
+The tested Qwen sidecar uses about 7 GiB of GPU memory per Spark alongside
+DeepSeek. The configuration is suitable for moderate mixed use, but host RAM
+and swap—not just GPU memory—limit long-context/high-concurrency workloads.
+Start with the example limits (`QWEN_VISION_MAX_NUM_SEQS=5` and DeepSeek's
+conservative profile), monitor memory, and lower concurrency if swap grows.
+
+## Optional clients
+
+- [Generic OpenAI-compatible clients](../integrations/generic-openai-compatible.md)
+- [Hermes Agent](../integrations/hermes.md)
+- [Pi Coding Agent](../integrations/pi.md)
+
+## Troubleshooting
+
+- Start the worker before the head; NCCL initialization is sensitive to order.
+- Verify that head and worker use the same image digest and model revision.
+- If the head is healthy but the worker is not, inspect
+  `docker logs qwen3.5-vision` on both nodes.
+- If available RAM is low or swap is active before startup, resolve the host
+  pressure before increasing concurrency.
