@@ -8,7 +8,9 @@ required.
 ## Quick orientation
 
 - DeepSeek is the primary long-context text, reasoning, and tool-use model.
-- Qwen Vision is the multimodal sidecar for requests that contain images.
+- Qwen Vision is the multimodal sidecar for requests that contain images. The
+  tested checkpoint is `RedHatAI/Qwen3.5-9B-quantized.w4a16`, served as
+  `qwen3.5-9b-vision`.
 - The generic client contract is documented in
   [`integrations/generic-openai-compatible.md`](integrations/generic-openai-compatible.md).
 - Optional client setup: [`integrations/hermes.md`](integrations/hermes.md) and
@@ -35,9 +37,9 @@ QWEN_WORKER_DIR=/home/YOUR_USERNAME/dspark-qwen-vision \
 ./start-qwen-vision.sh
 ```
 
-Prepare the Qwen model cache before starting the service. This downloads the
-model from its Hugging Face ID into the local cache on each node; no model
-weights are stored in this repository:
+Prepare the Qwen3.5 9B quantized vision model cache before starting the service.
+This downloads `RedHatAI/Qwen3.5-9B-quantized.w4a16` from Hugging Face into the
+local cache on each node; no model weights are stored in this repository:
 
 ```bash
 QWEN_WORKER_HOST=spark2 \
