@@ -1,0 +1,34 @@
+{
+  "date": "2026-08-08",
+  "benchmark": "fixed_prompt_serial_streaming_ab",
+  "prompt": "650 repeats of 'unique benchmark datum ' followed by an instruction to return 64 numbered lowercase English words",
+  "generation": {
+    "max_tokens": 64,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "measured_runs": 3,
+    "warmup_runs": 1
+  },
+  "without_qwen": {
+    "runs": [
+      {"ttft_s": 6.9278, "elapsed_s": 6.9278, "completion_tokens": 64, "decode_tok_s": 9.24, "aggregate_tok_s": 9.24},
+      {"ttft_s": 1.6478, "elapsed_s": 1.6478, "completion_tokens": 64, "decode_tok_s": 38.84, "aggregate_tok_s": 38.84},
+      {"ttft_s": 1.4596, "elapsed_s": 1.4596, "completion_tokens": 64, "decode_tok_s": 43.85, "aggregate_tok_s": 43.85}
+    ],
+    "median_aggregate_tok_s": 38.84
+  },
+  "with_qwen": {
+    "runs": [
+      {"ttft_s": 1.6271, "elapsed_s": 1.6271, "completion_tokens": 64, "decode_tok_s": 39.33, "aggregate_tok_s": 39.33},
+      {"ttft_s": 1.5021, "elapsed_s": 1.5021, "completion_tokens": 64, "decode_tok_s": 42.61, "aggregate_tok_s": 42.61},
+      {"ttft_s": 1.4558, "elapsed_s": 1.4558, "completion_tokens": 64, "decode_tok_s": 43.96, "aggregate_tok_s": 43.96}
+    ],
+    "median_aggregate_tok_s": 42.61
+  },
+  "delta_with_qwen_percent": 9.7,
+  "notes": [
+    "Each condition used a fresh DeepSeek process; Qwen was stopped for the control and loaded for the treatment.",
+    "The first sample in each condition was a warmup and is excluded from medians.",
+    "Short serial samples are directional, not a production capacity guarantee."
+  ]
+}

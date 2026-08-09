@@ -48,16 +48,31 @@ are more variable and should not be attributed solely to Qwen without a clean,
 same-session A/B run; the no-Qwen retry was invalidated by stale benchmark
 requests that did not close cleanly.
 
-## Resource footprint and A/B status
+## Clean same-session A/B
+
+To isolate the sidecar effect, both services were stopped between conditions,
+DeepSeek was started fresh for each condition, and the same fixed prompt and
+generation settings were used. The first request in each condition was a
+warmup; the three subsequent serial requests produced these medians:
+
+| Condition | Median aggregate decode |
+| --- | ---: |
+| DeepSeek without Qwen | 38.84 tok/s |
+| DeepSeek with Qwen loaded | 42.61 tok/s |
+
+The measured difference was **+9.7% with Qwen loaded**. This small sample shows
+no measurable performance penalty, but it should be treated as directional:
+short serial runs have normal variance and are not a capacity or concurrency
+benchmark.
+
+Raw output: `results/deepseek-clean-ab-2026-08-08.json`.
+
+## Resource footprint and prior A/B status
 
 At an idle observation after the runs, Qwen used approximately 7.0 GiB of GPU
 memory and 2.5% host CPU per node. DeepSeek used approximately 94.5 GiB of GPU
-memory. A no-Qwen control produced 64.4 tok/s decode on one 256-token,
-concurrency-1 case, but the matched 2K control did not complete cleanly during
-this run. Therefore this report does **not** claim a precise percentage
-performance penalty from loading Qwen. The current evidence shows that the
-sidecar fits in the available memory budget; a proper impact percentage needs a
-repeatable warm-state A/B sweep under otherwise identical load.
+memory. The earlier unmatched retry had stale requests and is retained only as
+historical context; the clean A/B above is the preferred comparison.
 
 Raw outputs:
 
