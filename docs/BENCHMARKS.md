@@ -35,6 +35,19 @@ The Mia benchmark harness was run while the Qwen sidecar was loaded:
 \* The first 256-token case includes cold/warm-up behavior and should not be
 used as a steady-state latency figure.
 
+## Comparison with Mia's published result
+
+Mia's published 2K-prompt, concurrency-1 result for the same benchmark harness
+reported 68.8 decode tok/s, 62.0 aggregate tok/s, 2,563K prefill tok/s, and
+0.81s TTFT. The loaded-sidecar run reported 65.4 decode tok/s, 63.3 aggregate
+tok/s, 1,322K prefill tok/s, and 1.57s TTFT.
+
+That is approximately **4.9% lower single-stream decode throughput** but **2.0%
+higher aggregate throughput** in this sample. The prefill and TTFT differences
+are more variable and should not be attributed solely to Qwen without a clean,
+same-session A/B run; the no-Qwen retry was invalidated by stale benchmark
+requests that did not close cleanly.
+
 ## Resource footprint and A/B status
 
 At an idle observation after the runs, Qwen used approximately 7.0 GiB of GPU
