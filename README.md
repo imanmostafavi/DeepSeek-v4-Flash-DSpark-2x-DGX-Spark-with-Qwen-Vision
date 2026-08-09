@@ -58,6 +58,8 @@ After the service is healthy, run:
 ```
 
 See [`docs/SETUP.md`](docs/SETUP.md) for the end-to-end deployment workflow.
+See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for preliminary DeepSeek and
+Qwen Vision measurements.
 
 > Maintained by [imanmostafavi](https://github.com/imanmostafavi). This project
 > builds on the original two-node DeepSeek DSpark recipe from

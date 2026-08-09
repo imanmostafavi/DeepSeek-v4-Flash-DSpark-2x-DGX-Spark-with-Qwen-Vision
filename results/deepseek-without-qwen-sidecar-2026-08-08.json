@@ -1,0 +1,52 @@
+{
+  "base_url": "http://HEAD_NODE:8888/v1",
+  "cases": [
+    {
+      "aggregate_tok_s": 63.77884729205513,
+      "concurrency": 1,
+      "elapsed_s": 46.755313502999996,
+      "median_output_tok_s": 64.39997359304782,
+      "median_prefill_tok_s": 622.1650756687275,
+      "median_ttft_s": 0.45004133300000004,
+      "requests": [
+        {
+          "elapsed_s": 46.754408146,
+          "output_tok_s": 64.39997359304782,
+          "output_tokens": 2982,
+          "prefill_tok_s": 622.1650756687275,
+          "prompt_tokens": 280,
+          "ttft_s": 0.45004133300000004
+        }
+      ],
+      "target_prompt_tokens": 256
+    },
+    {
+      "aggregate_tok_s": 73.47628792389108,
+      "concurrency": 2,
+      "elapsed_s": 101.92403851100002,
+      "median_output_tok_s": 38.5664595794766,
+      "median_prefill_tok_s": 515.1328163511266,
+      "median_ttft_s": 0.5729491379999985,
+      "requests": [
+        {
+          "elapsed_s": 101.92336457600001,
+          "output_tok_s": 33.31684322632307,
+          "output_tokens": 3381,
+          "prefill_tok_s": 631.8231341832976,
+          "prompt_tokens": 280,
+          "ttft_s": 0.44316199400000045
+        },
+        {
+          "elapsed_s": 94.458279483,
+          "output_tok_s": 43.81607593263013,
+          "output_tokens": 4108,
+          "prefill_tok_s": 398.44249851895563,
+          "prompt_tokens": 280,
+          "ttft_s": 0.7027362819999965
+        }
+      ],
+      "target_prompt_tokens": 256
+    }
+  ],
+  "model": "deepseek-v4-flash-dspark"
+}

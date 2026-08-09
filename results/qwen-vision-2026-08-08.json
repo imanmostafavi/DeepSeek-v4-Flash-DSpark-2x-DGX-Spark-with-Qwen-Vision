@@ -1,0 +1,121 @@
+{
+  "base_url": "http://HEAD_NODE:8890/v1",
+  "cases": [
+    {
+      "aggregate_output_tok_s": 9.606067653421148,
+      "concurrency": 1,
+      "median_elapsed_s": 3.22712697,
+      "median_output_tok_s": 11.572135140882876,
+      "median_ttft_s": 0.5482781990000001,
+      "requests": [
+        {
+          "elapsed_s": 3.22712697,
+          "output_tok_s": 11.572135140882876,
+          "output_tokens": 31,
+          "ttft_s": 0.5482781990000001
+        }
+      ],
+      "run": 1
+    },
+    {
+      "aggregate_output_tok_s": 9.931817680756524,
+      "concurrency": 1,
+      "median_elapsed_s": 3.1212816219999997,
+      "median_output_tok_s": 11.958411637784248,
+      "median_ttft_s": 0.5289641019999998,
+      "requests": [
+        {
+          "elapsed_s": 3.1212816219999997,
+          "output_tok_s": 11.958411637784248,
+          "output_tokens": 31,
+          "ttft_s": 0.5289641019999998
+        }
+      ],
+      "run": 2
+    },
+    {
+      "aggregate_output_tok_s": 11.214816687611487,
+      "concurrency": 1,
+      "median_elapsed_s": 2.7642003310000005,
+      "median_output_tok_s": 13.568529987019396,
+      "median_ttft_s": 0.4795018390000001,
+      "requests": [
+        {
+          "elapsed_s": 2.7642003310000005,
+          "output_tok_s": 13.568529987019396,
+          "output_tokens": 31,
+          "ttft_s": 0.4795018390000001
+        }
+      ],
+      "run": 3
+    },
+    {
+      "aggregate_output_tok_s": 13.914495765994102,
+      "concurrency": 2,
+      "median_elapsed_s": 4.376436050500001,
+      "median_output_tok_s": 8.737951148178407,
+      "median_ttft_s": 0.8159900935000008,
+      "requests": [
+        {
+          "elapsed_s": 4.297087210000001,
+          "output_tok_s": 8.216012269319904,
+          "output_tokens": 31,
+          "ttft_s": 0.5239672360000007
+        },
+        {
+          "elapsed_s": 4.455784891,
+          "output_tok_s": 9.259890027036908,
+          "output_tokens": 31,
+          "ttft_s": 1.108012951000001
+        }
+      ],
+      "run": 1
+    },
+    {
+      "aggregate_output_tok_s": 18.9378048379691,
+      "concurrency": 2,
+      "median_elapsed_s": 3.083706382499999,
+      "median_output_tok_s": 12.719764675987502,
+      "median_ttft_s": 0.6460741439999991,
+      "requests": [
+        {
+          "elapsed_s": 2.8935380719999984,
+          "output_tok_s": 12.898298543665263,
+          "output_tokens": 31,
+          "ttft_s": 0.49012029599999885
+        },
+        {
+          "elapsed_s": 3.273874693,
+          "output_tok_s": 12.54123080830974,
+          "output_tokens": 31,
+          "ttft_s": 0.8020279919999993
+        }
+      ],
+      "run": 2
+    },
+    {
+      "aggregate_output_tok_s": 18.802893262811335,
+      "concurrency": 2,
+      "median_elapsed_s": 3.1935074064999984,
+      "median_output_tok_s": 11.9900282898136,
+      "median_ttft_s": 0.6078293559999999,
+      "requests": [
+        {
+          "elapsed_s": 3.089649927,
+          "output_tok_s": 11.885572761647039,
+          "output_tokens": 31,
+          "ttft_s": 0.48144579400000254
+        },
+        {
+          "elapsed_s": 3.297364885999997,
+          "output_tok_s": 12.09448381798016,
+          "output_tokens": 31,
+          "ttft_s": 0.7342129179999972
+        }
+      ],
+      "run": 3
+    }
+  ],
+  "image": "qwen-bench-mountain.jpg",
+  "model": "qwen3.5-9b-vision"
+}
