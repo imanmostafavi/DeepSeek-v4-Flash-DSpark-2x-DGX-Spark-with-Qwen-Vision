@@ -15,7 +15,8 @@ if [ -n "${THIS_NODE_HF_CACHE:-}" ]; then
   HF_CACHE="$THIS_NODE_HF_CACHE"
 fi
 
-: "${DSPARK_MODEL:=deepseek-ai/DeepSeek-V4-Flash-DSpark}"
+: "${DSPARK_MODEL:=deepseek-ai/DeepSeek-V4-Flash-0731}"
+: "${DSPARK_MODEL_REVISION:=9e165c30e2704aec5d9d593cce3eebd58bbef1cb}"
 : "${HF_CACHE:=$HOME/.cache/huggingface}"
 : "${HF_DOWNLOAD_WORKERS:=1}"
 : "${DSPARK_VLLM_IMAGE:=vllm-dspark-runtime:dspark-nvfp4-stage-c}"
@@ -58,10 +59,11 @@ run_download() {
     -e TRANSFORMERS_OFFLINE=0 \
     -e HF_HUB_DISABLE_XET="${HF_HUB_DISABLE_XET:-1}" \
     -e DSPARK_MODEL="$DSPARK_MODEL" \
+    -e DSPARK_MODEL_REVISION="$DSPARK_MODEL_REVISION" \
     -e HF_DOWNLOAD_WORKERS="$HF_DOWNLOAD_WORKERS" \
     --entrypoint "$IMAGE_PYTHON" \
     "$DSPARK_VLLM_IMAGE" \
-    -c 'from huggingface_hub import snapshot_download; import os; print(snapshot_download(os.environ["DSPARK_MODEL"], max_workers=int(os.environ.get("HF_DOWNLOAD_WORKERS", "1"))))'
+    -c 'from huggingface_hub import snapshot_download; import os; print(snapshot_download(os.environ["DSPARK_MODEL"], revision=os.environ["DSPARK_MODEL_REVISION"], max_workers=int(os.environ.get("HF_DOWNLOAD_WORKERS", "1"))))'
 }
 
 verify_cache() {
@@ -73,6 +75,7 @@ verify_cache() {
     -e TRANSFORMERS_OFFLINE=1 \
     -e HF_HUB_DISABLE_XET="${HF_HUB_DISABLE_XET:-1}" \
     -e DSPARK_MODEL="$DSPARK_MODEL" \
+    -e DSPARK_MODEL_REVISION="$DSPARK_MODEL_REVISION" \
     --entrypoint "$IMAGE_PYTHON" \
     "$DSPARK_VLLM_IMAGE" \
     - <<'PY'
@@ -81,7 +84,7 @@ import os
 from pathlib import Path
 from huggingface_hub import snapshot_download
 
-path = Path(snapshot_download(os.environ["DSPARK_MODEL"], local_files_only=True))
+path = Path(snapshot_download(os.environ["DSPARK_MODEL"], revision=os.environ["DSPARK_MODEL_REVISION"], local_files_only=True))
 index_path = path / "model.safetensors.index.json"
 index = json.loads(index_path.read_text())
 needed = sorted(set(index["weight_map"].values()))

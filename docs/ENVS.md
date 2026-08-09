@@ -119,7 +119,7 @@ docker compose --env-file .env.dspark \
 
 Keep the slim set in `.env.dspark.example` + `docker-compose.dspark.yml`:
 
-- Serve profile: `MTP_NUM_TOKENS=5`, capture `max_num_seqs * (k+1)`, `GPU_MEMORY_UTILIZATION≈0.80`
+- Serve profile: `MTP_NUM_TOKENS=5`, capture `max_num_seqs * (k+1)`, `GPU_MEMORY_UTILIZATION=0.761` with Qwen loaded
 - `VLLM_USE_BREAKABLE_CUDAGRAPH=0` (explicit opt-out; omission auto-enables the slower breakable path on DS4)
 - `VLLM_USE_B12X_MOE=1`
 - `CUTE_DSL_ARCH=sm_121a` (GB10 CuTeDSL target; prevents slower JIT fallbacks)

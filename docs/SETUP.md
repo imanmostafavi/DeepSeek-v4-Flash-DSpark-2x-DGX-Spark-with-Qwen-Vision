@@ -122,8 +122,10 @@ before the head:
 The tested Qwen sidecar uses about 7 GiB of GPU memory per Spark alongside
 DeepSeek. The configuration is suitable for moderate mixed use, but host RAM
 and swap—not just GPU memory—limit long-context/high-concurrency workloads.
-Start with the example limits (`QWEN_VISION_MAX_NUM_SEQS=5` and DeepSeek's
-conservative profile), monitor memory, and lower concurrency if swap grows.
+Start with the tested example limits (`QWEN_VISION_MAX_NUM_SEQS=5`, DeepSeek
+`GPU_MEMORY_UTILIZATION=0.761`, `MAX_NUM_SEQS=6`, and
+`MAX_NUM_BATCHED_TOKENS=8192`), monitor memory, and lower concurrency if swap
+grows.
 
 ## Optional clients
 

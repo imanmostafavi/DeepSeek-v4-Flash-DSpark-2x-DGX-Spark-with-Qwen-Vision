@@ -143,15 +143,15 @@ logic ships inside the image rather than as a host bind-mount.
 - `max_num_seqs=6`
 - `max_num_batched_tokens=8192`
 - `kv_cache_dtype=nvfp4_ds_mla`
-- `gpu_memory_utilization=0.80`
+- `gpu_memory_utilization=0.761` (tested with the Qwen vision sidecar loaded)
 - `MTP_NUM_TOKENS=5` (checkpoint `dspark_block_size` is 5; k must be ≥ 5)
 - `DEFAULT_THINKING=low` (`off`, `low`, `high`, or `max`; request-level overrides still win)
 - `VLLM_USE_BREAKABLE_CUDAGRAPH=0` (keep regular CUDA graphs; Anemll auto-enables the slower breakable path when unset)
 - API bind address `0.0.0.0:8888`
 
-Local `.env.dspark` may lower `MAX_MODEL_LEN` (for example `512000`) or raise
-`MTP_NUM_TOKENS` / `GPU_MEMORY_UTILIZATION` for a specific cluster without
-changing the recipe default.
+Local `.env.dspark` may lower `MAX_MODEL_LEN` (for example `512000`) or tune
+`MTP_NUM_TOKENS` for a specific cluster. Keep `GPU_MEMORY_UTILIZATION=0.761`
+while the Qwen sidecar is loaded unless the combined stack is revalidated.
 
 > [!IMPORTANT]
 > This profile is meant for real deep-context agent serving: up to **1M tokens
@@ -161,7 +161,8 @@ changing the recipe default.
 > long requests.
 
 > [!IMPORTANT]
-> For long coding tasks and big prompts, use:
+> For a DeepSeek-only deployment with Qwen stopped, the prior high-memory
+> profile was:
 >
 > ```env
 > MAX_MODEL_LEN=1048576
@@ -210,7 +211,7 @@ Runtime:
 - served model name: `deepseek-v4-flash-0731`
 - `kv_cache_dtype=nvfp4_ds_mla`
 - recipe defaults: `max_model_len=1048576`, `max_num_seqs=6`,
-  `max_num_batched_tokens=8192`, `gpu_memory_utilization=0.80`, `MTP_NUM_TOKENS=5`
+  `max_num_batched_tokens=8192`, `gpu_memory_utilization=0.761`, `MTP_NUM_TOKENS=5`
 - `VLLM_USE_BREAKABLE_CUDAGRAPH=0`
 - compose installs checkpoint `encoding/encoding_dsv4.py` into vLLM on both ranks
   (override with `DSPARK_ENCODING_FILE` when needed)
@@ -809,7 +810,7 @@ recipe default):
 - `MAX_MODEL_LEN=1048576` (**1M**)
 - `MAX_NUM_SEQS=6`
 - `MAX_NUM_BATCHED_TOKENS=8192`
-- `GPU_MEMORY_UTILIZATION=0.80`
+- `GPU_MEMORY_UTILIZATION=0.761`
 - `MTP_NUM_TOKENS=5`
 - `VLLM_USE_BREAKABLE_CUDAGRAPH=0`
 - `HF_HUB_OFFLINE=1` after both nodes have a full model cache
@@ -1059,7 +1060,7 @@ blaming the DSpark weights.
 - The **default** agent-serving profile is `DSPARK_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731`,
   `SERVED_MODEL_NAME=deepseek-v4-flash-0731`,
   `MAX_MODEL_LEN=1048576` (1M), `MAX_NUM_SEQS=6`, `MAX_NUM_BATCHED_TOKENS=8192`,
-  `GPU_MEMORY_UTILIZATION=0.80`, `MTP_NUM_TOKENS=5`,
+  `GPU_MEMORY_UTILIZATION=0.761`, `MTP_NUM_TOKENS=5`,
   `VLLM_USE_BREAKABLE_CUDAGRAPH=0`,
   `DSPARK_VLLM_IMAGE=ghcr.io/anemll/dspark-vllm-gx10:0.1.1`,
   `VLLM_USE_FLASHINFER_SAMPLER=1`, `VLLM_USE_B12X_MOE=1`, no generation override.

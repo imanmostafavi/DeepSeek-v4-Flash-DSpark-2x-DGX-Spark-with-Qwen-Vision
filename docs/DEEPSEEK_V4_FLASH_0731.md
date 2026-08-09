@@ -17,6 +17,11 @@ The published checkpoint has no vision processor, projector, or vision tower. Pa
 
 The default two-Spark profile uses MTP-5 probabilistic speculation, NVFP4 MLA KV cache, prefix caching, chunked prefill, asynchronous scheduling, CUDA graphs, and the `deepseek_v4` tokenizer, reasoning parser, and tool-call parser.
 
+The recipe passes this revision explicitly to both cache preparation and
+`vllm serve`. With the Qwen vision sidecar loaded, the tested DeepSeek profile
+uses `GPU_MEMORY_UTILIZATION=0.761`, `MAX_NUM_SEQS=6`, and
+`MAX_NUM_BATCHED_TOKENS=8192`.
+
 The model card does not ship a Jinja chat template. It includes an `encoding` package that defines message encoding and output parsing, including `low`, `high`, and `max` reasoning effort. Validate multi-turn role boundaries, reasoning separation, and tool calls after runtime upgrades because successful weight loading alone does not prove encoding compatibility.
 
 Set `DSPARK_ENCODING_FILE` to the checkpoint's `encoding/encoding_dsv4.py` path inside the container when the runtime image predates the checkpoint. The launcher installs that encoder into vLLM before import, on both ranks. It also corrects pre-0731 tokenizer wrappers that mapped `low` reasoning effort to `high`. These changes are required for the 0731 `reasoning_content`, reasoning-effort, and tool-argument semantics.
