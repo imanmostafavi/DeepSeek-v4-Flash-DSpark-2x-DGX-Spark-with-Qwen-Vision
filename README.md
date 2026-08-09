@@ -18,9 +18,11 @@ required.
 - Agent handoff instructions live in [`AGENTS.md`](AGENTS.md).
 
 The Qwen recipe mirrors the two-node layout used by the live Spark deployment.
-Its default image is intentionally configurable because the tested Qwen image
-is a local custom build, not a public image that another user can pull without
-rebuilding it.
+The default runtime is the pinned public image
+`ghcr.io/imanmostafavi/dspark-qwen-vision:0.1.0` built from
+[`Dockerfile.qwen-vision`](Dockerfile.qwen-vision). To rebuild it locally, run
+`./build-qwen-vision.sh`; set `PUSH_QWEN_VISION_IMAGE=1` when publishing a new
+tag after authenticating to GHCR.
 
 ```bash
 cp .env.qwen-vision.example .env.qwen-vision

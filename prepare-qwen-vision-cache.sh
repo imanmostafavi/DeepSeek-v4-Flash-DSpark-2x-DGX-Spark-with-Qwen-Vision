@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ENV_FILE="${ENV_FILE:-.env.qwen-vision}"
-IMAGE="${QWEN_VISION_IMAGE:-local/dspark-vllm-gx10:qwen-flashinfer-0.6.13}"
+IMAGE="${QWEN_VISION_IMAGE:-ghcr.io/imanmostafavi/dspark-qwen-vision@sha256:0898f08028ffc48d5f232d750c58ea8cac9e434ec21d3b875c6c62a945acb2a3}"
 MODEL="${QWEN_VISION_MODEL:-RedHatAI/Qwen3.5-9B-quantized.w4a16}"
 HF_CACHE="${HF_CACHE:-$HOME/.cache/huggingface}"
 QWEN_SYNC_CACHE="${QWEN_SYNC_CACHE:-1}"

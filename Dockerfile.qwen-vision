@@ -1,0 +1,13 @@
+# Reproducible Qwen vision runtime for NVIDIA DGX Spark / GB10.
+# The base image contains the DSpark/GB10 vLLM runtime; the tested Qwen
+# sidecar differs only by pinning flashinfer-python to 0.6.13.
+FROM ghcr.io/anemll/dspark-vllm-gx10@sha256:a83948492cf13df455170fb42885f5ef4db54fefe0feff0f841ecbff464ac9d8
+
+LABEL org.opencontainers.image.title="DSpark Qwen Vision runtime" \
+      org.opencontainers.image.description="Pinned Qwen3.5 vision sidecar runtime for two-node NVIDIA DGX Spark" \
+      org.opencontainers.image.source="https://github.com/imanmostafavi/DeepSeek-v4-Flash-DSpark-2x-DGX-Spark-with-Qwen-Vision" \
+      org.opencontainers.image.licenses="MIT AND Apache-2.0"
+
+RUN python3 -m pip install --no-cache-dir --no-deps --force-reinstall \
+      flashinfer-python==0.6.13 \
+    && python3 -c "import importlib.metadata as m; assert m.version('flashinfer-python') == '0.6.13'; assert m.version('flashinfer-cubin') == '0.6.13'"

@@ -1,6 +1,6 @@
 services:
   qwen-vision:
-    image: ${QWEN_VISION_IMAGE:-local/dspark-vllm-gx10:qwen-flashinfer-0.6.13}
+    image: ${QWEN_VISION_IMAGE:-ghcr.io/imanmostafavi/dspark-qwen-vision@sha256:0898f08028ffc48d5f232d750c58ea8cac9e434ec21d3b875c6c62a945acb2a3}
     pull_policy: if_not_present
     entrypoint: []
     network_mode: host
