@@ -1,5 +1,5 @@
 {
-  "base_url": "http://100.73.7.107:8888/v1",
+  "base_url": "http://<HEAD_NODE_IP>:8888/v1",
   "cases": [
     {
       "aggregate_tok_s": 69.06817812188484,

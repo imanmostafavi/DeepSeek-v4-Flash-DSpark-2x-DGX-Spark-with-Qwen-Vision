@@ -1,5 +1,6 @@
 .env.dspark
 .env.dspark.works
+.env.qwen-vision
 .env
 .secrets/
 *.pem

@@ -1,11 +1,68 @@
-# DeepSeek V4 Flash 0731 DSpark on 2x DGX Spark
+# DeepSeek V4 Flash 0731 DSpark on 2x DGX Spark with Qwen Vision
 
-<p align="center">
-  <sub>by <a href="https://x.com/MiaAI_lab">Mia'a AI Lab</a></sub>
-  <br><br>
-  <a href="https://ko-fi.com/Z8Z3SPLOD" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 8px;vertical-align:middle;"><img src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" alt="Buy Me a Coffee at ko-fi.com" height="28" style="height:28px;width:auto;vertical-align:middle;border:0;" /></a>
-  <a href="https://x.com/MiaAI_lab" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 8px;vertical-align:middle;"><img src="https://img.shields.io/badge/Follow%20me%20on%20X-000000?style=for-the-badge&logo=x&logoColor=white" alt="Follow Mia on X" height="28" style="height:28px;width:auto;vertical-align:middle;border:0;" /></a>
-</p>
+Agent-ready two-node NVIDIA DGX Spark recipe for serving DeepSeek V4 Flash
+and a Qwen vision sidecar through OpenAI-compatible APIs. Optional integration
+guides are included for Hermes Agent and Pi Coding Agent; neither client is
+required.
+
+## Quick orientation
+
+- DeepSeek is the primary long-context text, reasoning, and tool-use model.
+- Qwen Vision is the multimodal sidecar for requests that contain images.
+- The generic client contract is documented in
+  [`integrations/generic-openai-compatible.md`](integrations/generic-openai-compatible.md).
+- Optional client setup: [`integrations/hermes.md`](integrations/hermes.md) and
+  [`integrations/pi.md`](integrations/pi.md).
+- Agent handoff instructions live in [`AGENTS.md`](AGENTS.md).
+
+The Qwen recipe mirrors the two-node layout used by the live Spark deployment.
+Its default image is intentionally configurable because the tested Qwen image
+is a local custom build, not a public image that another user can pull without
+rebuilding it.
+
+```bash
+cp .env.qwen-vision.example .env.qwen-vision
+# Edit host, RoCE, cache, and image values for your cluster.
+docker compose --env-file .env.qwen-vision -f docker-compose.qwen-vision.yml config
+```
+
+Set `QWEN_WORKER_HOST` and `QWEN_WORKER_DIR` in your shell, then start the
+worker-first deployment from the head node:
+
+```bash
+QWEN_WORKER_HOST=spark2 \
+QWEN_WORKER_DIR=/home/YOUR_USERNAME/dspark-qwen-vision \
+./start-qwen-vision.sh
+```
+
+Prepare the Qwen model cache before starting the service. This downloads the
+model from its Hugging Face ID into the local cache on each node; no model
+weights are stored in this repository:
+
+```bash
+QWEN_WORKER_HOST=spark2 \
+QWEN_WORKER_DIR=/home/YOUR_USERNAME/dspark-qwen-vision \
+./prepare-qwen-vision-cache.sh
+```
+
+By default, this downloads Qwen once on the head node and synchronizes the
+prepared Hugging Face cache to the worker over SSH/rsync. Set
+`QWEN_SYNC_CACHE=0` if both nodes have faster independent access to Hugging
+Face than the inter-node link. DeepSeek retains Mia's original independent
+worker-download behavior.
+
+After the service is healthy, run:
+
+```bash
+./scripts/status-qwen-vision.sh
+```
+
+See [`docs/SETUP.md`](docs/SETUP.md) for the end-to-end deployment workflow.
+
+> Maintained by [imanmostafavi](https://github.com/imanmostafavi). This project
+> builds on the original two-node DeepSeek DSpark recipe from
+> [MiaAI-Lab](https://github.com/MiaAI-Lab/DeepSeek-v4-Flash-DSpark-2x-DGX-Spark).
+> Follow [@imost on X](https://x.com/imost) for project updates.
 
 > [!IMPORTANT]
 > **This is the updated recipe for DeepSeek v4 Flash GA (0731).**
@@ -295,7 +352,7 @@ serving profile (kept for comparison; not the current default image).
 
 Runtime:
 
-- endpoint tested: `http://100.90.25.78:8888/v1`
+- endpoint tested: `http://<HEAD_NODE_IP>:8888/v1`
 - served model: `deepseek-v4-flash-dspark`
 - image: `vllm-dspark-runtime:dspark-nvfp4-stage-c`
 - model path: `/cache/huggingface/fraserprice/DeepSeek-V4-Flash-DSpark`
@@ -344,7 +401,7 @@ sending the model back through Hermes/OpenClaw-style harnesses.
 
 Runtime:
 
-- endpoint tested: `http://100.90.25.78:8888/v1`
+- endpoint tested: `http://<HEAD_NODE_IP>:8888/v1`
 - served model: `deepseek-v4-flash-dspark`
 - image used on that lane: `vllm-dspark-runtime:mia-raf-pr1-nvfp4-keys-c`
 - model path: `/cache/huggingface/fraserprice/DeepSeek-V4-Flash-DSpark`

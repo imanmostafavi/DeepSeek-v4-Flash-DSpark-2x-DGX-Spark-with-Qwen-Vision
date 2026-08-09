@@ -1,4 +1,12 @@
-# Setup — A/B replicas, models, and step-by-step reproduction
+# Setup — two-node DGX Spark deployment
+
+This fork keeps MiaAI-Lab's validated DeepSeek recipe and adds an optional
+Qwen Vision sidecar. Start with the current root README and `AGENTS.md`; this
+document covers the shared host/fabric requirements and the worker-first
+deployment model.
+
+The historical A/B replica notes below are retained as upstream context. They
+are not required for the current two-Spark deployment.
 
 ## Hardware / fabric
 
@@ -32,7 +40,7 @@ Caricio's integration; the TonyD2Wild repo vendors those same files.
 | | |
 |---|---|
 | Repo | `rafaelcaricio/spark_vllm_docker` + `rafaelcaricio/vllm` (fork `codex/dspark-harness-integration`) |
-| Nodes | head `10.100.10.4:8000`, worker `10.100.10.1` |
+| Nodes | head `<HEAD_FABRIC_IP>:8000`, worker `<WORKER_FABRIC_IP>` |
 | Launch | compose + `unholy` entrypoint + a wrapper that rewrites `method:mtp → dspark` at start |
 | `max-num-seqs` | 1 (control) |
 | Single-stream | ~52–54 tok/s |
@@ -42,7 +50,7 @@ Caricio's integration; the TonyD2Wild repo vendors those same files.
 | | |
 |---|---|
 | Repo | `tonyd2wild/DeepSeek-v4-Flash-DSpark-60-tok-s-900K-ctx-2x-DGX-Spark` (vendors Rafael's overlay; MiaAI-Lab worker-first launch) |
-| Nodes | head `10.100.10.2:8888`, worker `10.100.10.3` |
+| Nodes | head `<HEAD_FABRIC_IP>:8888`, worker `<WORKER_FABRIC_IP>` |
 | Launch | self-contained compose, direct `vllm serve ... method:dspark`, worker-first start script |
 | `max-num-seqs` | swept 1 → 16 (with this patch) |
 | Single-stream | ~52 tok/s |
